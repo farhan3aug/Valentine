@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For My Queen ❤️</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --romance: #d00000; --soft-pink: #ffb3c1; --gold: #d4af37; }
+        
+        body { 
+            margin: 0; padding: 0; min-height: 100vh; 
+            display: flex; align-items: center; justify-content: center; 
+            background: #fff0f3; font-family: 'Poppins', sans-serif; 
+            overflow: hidden;
+        }
+
+        .falling-item { 
+            position: fixed; top: -50px; font-size: 24px; 
+            animation: fall linear forwards; z-index: 1; 
+            pointer-events: none; opacity: 0.8; will-change: transform;
+        }
+
+        @keyframes fall { 
+            0% { transform: translateY(-50px) translateX(0) rotate(0deg); }
+            100% { transform: translateY(110vh) translateX(20px) rotate(360deg); } 
+        }
+
+        .card { 
+            z-index: 100; background: white; padding: 30px 20px; 
+            border-radius: 40px; box-shadow: 0 20px 60px rgba(255, 77, 109, 0.3); 
+            width: 85%; max-width: 400px; text-align: center; 
+            border: 2px solid var(--soft-pink); position: relative;
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        .profile-img {
+            width: 120px; height: 120px; border-radius: 50%;
+            border: 4px solid var(--romance); padding: 4px;
+            margin: 0 auto 15px auto; object-fit: cover;
+        }
+
+        .main-greet { font-family: 'Dancing Script', cursive; color: var(--romance); font-size: 2.4rem; margin: 0; }
+        .sub-greet { color: #590d22; margin-bottom: 25px; font-size: 1rem; }
+
+        .btn-wrap { 
+            display: flex; justify-content: center; gap: 15px; 
+            position: relative; width: 100%; height: 50px; 
+        }
+        
+        button { 
+            padding: 12px 25px; border-radius: 50px; border: none; 
+            font-weight: 600; cursor: pointer; transition: 0.3s; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); touch-action: manipulation;
+        }
+
+        #yesBtn { background: var(--romance); color: white; }
+        #noBtn { background: #f8f9fa; color: #666; }
+
+        #celebration { display: none; }
+        
+        .timer-box { background: #fff5f7; border-radius: 20px; padding: 12px; margin: 15px 0; border: 1px solid var(--soft-pink); }
+        #timer { font-weight: 700; color: var(--romance); font-size: 1.1rem; }
+
+        /* FIXED SLIDESHOW FRAME */
+        .slideshow { 
+            position: relative; 
+            width: 100%; 
+            height: 280px; 
+            margin: 15px 0; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            background: #1a1a1a; /* Dark background so portrait photos look good */
+        }
+        .slide { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; /* This ensures the whole photo fits without cropping */
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            opacity: 0; 
+            transition: opacity 0.5s ease-in-out; 
+        }
+        .active { opacity: 1; z-index: 5; }
+
+        #typewriter { font-style: italic; color: #590d22; font-size: 0.85rem; min-height: 45px; margin: 10px 0; line-height: 1.4; }
+
+        #revealTrigger { 
+            background: linear-gradient(45deg, var(--romance), #ff4d6d); 
+            color: white; width: 100%; margin: 10px 0;
+        }
+
+        .milestones { display: none; flex-direction: column; gap: 10px; text-align: left; }
+        .point { background: #fff; border: 1px solid var(--soft-pink); padding: 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; }
+        .detail { display: none; color: var(--romance); margin-top: 5px; font-weight: 400; font-size: 0.8rem; }
+
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.7); border: none; width: 35px; height: 35px; border-radius: 50%; z-index: 10; cursor: pointer; font-weight: bold; }
+        .prev { left: 5px; } .next { right: 5px; }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop><source src="music.mp3" type="audio/mpeg"></audio>
+
+    <div class="card">
+        <div id="quiz">
+            <img src="wife.jpg" alt="Queen" class="profile-img">
+            <h1 class="main-greet">Hey My Love ❤️</h1>
+            <p class="sub-greet">Will you be my Valentine?</p>
+            <div class="btn-wrap">
+                <button id="yesBtn" onclick="startLove()">YES ❤️</button>
+                <button id="noBtn" onmouseover="dodgeNo()" ontouchstart="dodgeNo()">NO 💔</button>
+            </div>
+        </div>
+
+        <div id="celebration">
+            <h1 style="font-family: 'Dancing Script'; color: var(--romance); font-size: 1.8rem; margin: 0;">Forever Yours ✨</h1>
+            <div class="timer-box">
+                <small>Our Journey Since Aug 22, 2018</small>
+                <div id="timer"></div>
+            </div>
+            
+            <div class="slideshow" id="album">
+                <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
+                <button class="nav-btn next" onclick="changeSlide(1)">❯</button>
+            </div>
+
+            <div id="typewriter"></div>
+
+            <button id="revealTrigger" onclick="showMilestones()">Uncover Our Story ✨</button>
+
+            <div class="milestones" id="milestoneSection">
+                <div class="point" onclick="revealPoint(this)">
+                    📍 The Day We Met...
+                    <div class="detail">"Sept 8, 2018: The day my life truly began."</div>
+                </div>
+                <div class="point" onclick="revealPoint(this)">
+                    💍 My Promise...
+                    <div class="detail">
+                        • To love you more with every heartbeat.<br>
+                        • To always try my best to make you happy.<br>
+                        • To try my hardest to avoid any arguments.<br>
+						• I’ll be more open with my heart and more expressive with my love.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const journeyStart = new Date(2018, 7, 22);
+        let currentIdx = 0;
+        let charIdx = 0;
+        let typeInterval;
+        const msgText = "To my amazing wife: Since 2018, You are my greatest blessing—the woman I annoy most of the time, endlessly flirt with, and love with all my heart for the rest of my life… even when you roll your eyes at me (which I know I deserve). Happy Valentine’s Day, gorgeous. ❤️";
+
+        window.onpopstate = function() {
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('celebration').style.display = 'none';
+            const noBtn = document.getElementById('noBtn');
+            noBtn.style.position = 'static';
+            charIdx = 0;
+            clearInterval(typeInterval);
+            document.getElementById("typewriter").innerHTML = "";
+            document.getElementById('milestoneSection').style.display = 'none';
+            document.getElementById('revealTrigger').style.display = 'block';
+        };
+
+        function startLove() {
+            history.pushState({page: 'celebration'}, "");
+            document.getElementById('bgMusic').play().catch(() => {});
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('celebration').style.display = 'block';
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            updateTimer();
+            setInterval(updateTimer, 1000);
+            loadPhotos();
+            startTyping();
+        }
+
+        function dodgeNo() {
+            const btn = document.getElementById('noBtn');
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            btn.style.position = 'fixed';
+            btn.style.left = x + 'px'; btn.style.top = y + 'px';
+        }
+
+        function updateTimer() {
+            const diff = new Date() - journeyStart;
+            const d = Math.floor(diff / 86400000);
+            const h = Math.floor((diff / 3600000) % 24);
+            const m = Math.floor((diff / 60000) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            const timerEl = document.getElementById('timer');
+            if(timerEl) timerEl.innerText = `${d}d ${h}h ${m}m ${s}s`;
+        }
+
+        function loadPhotos() {
+            const album = document.getElementById('album');
+            if (album.querySelectorAll('.slide').length > 2) return;
+            for (let i = 1; i <= 25; i++) {
+                const img = document.createElement('img');
+                img.className = (i === 1) ? 'slide active' : 'slide';
+                img.src = `${i}.jpg`;
+                img.onerror = () => img.remove();
+                album.appendChild(img);
+            }
+        }
+
+        function changeSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (slides.length < 2) return;
+            slides[currentIdx].classList.remove('active');
+            currentIdx = (currentIdx + n + slides.length) % slides.length;
+            slides[currentIdx].classList.add('active');
+        }
+
+        function startTyping() {
+            const container = document.getElementById("typewriter");
+            container.innerHTML = "";
+            typeInterval = setInterval(() => {
+                if (charIdx < msgText.length) {
+                    container.innerHTML += msgText.charAt(charIdx);
+                    charIdx++;
+                } else {
+                    clearInterval(typeInterval);
+                }
+            }, 50);
+        }
+
+        function showMilestones() {
+            document.getElementById('milestoneSection').style.display = 'flex';
+            document.getElementById('revealTrigger').style.display = 'none';
+            confetti({ particleCount: 30, spread: 50 });
+        }
+
+        function revealPoint(el) {
+            const detail = el.querySelector('.detail');
+            detail.style.display = (detail.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function createFallingItem() {
+            const el = document.createElement('div');
+            el.className = 'falling-item';
+            el.innerHTML = Math.random() > 0.5 ? '❤️' : '🌹';
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            document.body.appendChild(el);
+            el.addEventListener('animationend', () => el.remove());
+        }
+        setInterval(createFallingItem, 600);
+    </script>
+</body>
+</html>
